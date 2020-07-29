@@ -1,4 +1,4 @@
-App {
+.App {
   --custom-font: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -10,7 +10,7 @@ App {
 }
 
 .App__nav {
-  background-color: #0b1b32;
+  background-color: #add8e6 ;
   color: #fff;
   grid-area: sidebar;
   height: 100vh;
@@ -18,7 +18,7 @@ App {
 }
 
 .App__header {
-  background-color: #0b1f3a;
+  background-color: #86c5da;
   color: #bdbdbd;
   font-family: var(--custom-font);
   grid-area: header;
@@ -28,11 +28,11 @@ App {
 }
 
 .App__header a {
-  color: #bdbdbd;
+  color: #ade6bb;
 }
 
 .App__main {
-  background-color: #102541;
+  background-color: #c1e1ec;
   grid-area: main;
   height: calc(100vh - 120px);
   overflow: auto;

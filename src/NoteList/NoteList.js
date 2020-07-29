@@ -1,22 +1,37 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { Component } from "react";
+import { NavLink, Link } from "react-router-dom";
+import { countNotesForFolder } from "../notes-helpers.js";
+import "./NoteList.css";
+import APIContext from "../APIContext.js";
 
-class NoteList extends React.Component {
+class NoteList extends Component {
+  static contextType = APIContext;
+
   render() {
+    const { folders = [], notes = [] } = this.context;
     return (
-      <section className="Note-Main">
-        <ul>
-          {this.props.notes.map(note => (
-            <li>
-              <Link to={"/note/" + note.id}>{note.name}</Link>
+      <div className="NoteListNav">
+        <ul className="NoteListNav__list">
+          {folders.map((folder) => (
+            <li key={folder.id}>
+              <NavLink
+                className="NoteListNav__folder-link"
+                to={`/folder/${folder.id}`}
+              >
+                <span className="NoteListNav__num-notes">
+                  {countNotesForFolder(notes, folder.id)}
+                </span>
+                {folder.name}
+              </NavLink>
             </li>
-
           ))}
         </ul>
-        <div className="noteFormSection">
-          <Link to={'/addnote'}>Add Note</Link>
+        <div className="NoteListNav__button-wrapper">
+          <button className="NoteListNav__add-folder-btn" type="button">
+            <Link to="/add-folder">Add Folder</Link>
+          </button>
         </div>
-      </section>
+      </div>
     );
   }
 }

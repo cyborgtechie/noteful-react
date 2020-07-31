@@ -2,99 +2,127 @@ import React, { Component } from "react";
 import APIContext from "../APIContext";
 import "./AddNote.css";
 import config from "../config";
-
+import AddNoteForm from "../AddNoteForm/AddNoteForm";
+import ValidationError from "../ValidationError";
 export default class AddNote extends Component {
-  state = {
-    newNote: {
-      name: {
-        touched: false,
-        value: ""
-      },
-      folderId: {
-        touched: false,
-        value: ""
-      },
-      content: {
-        touched: false,
-        value: ""
-      }
-    }
+  static defaultProps = {
+    history: {
+      push: () => {},
+    },
   };
-
   static contextType = APIContext;
 
-  addNewNote = note => {
+  state = {
+    name: {
+      touched: false,
+      value: "",
+    },
+    folderId: {
+      touched: false,
+      value: "",
+    },
+    content: {
+      touched: false,
+      value: "",
+    },
+  };
+
+  addNewNote = (note) => {
     note.modified = new Date(note.modified);
 
     fetch(`${config.API_Endpoint}notes`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(note)
+      body: JSON.stringify(note),
     })
-      .then(res => {
+      .then((res) => {
         return res.json();
       })
-      .then(resJSON => this.context.handleAddNote(resJSON));
+      .then((resJSON) => this.context.handleAddNote(resJSON))
+      .catch((err) => alert(err));
   };
 
-  parseFolders = () => {
-    return this.context.folders.map(folder => (
-      <option key={folder.id} name={folder.id} value={folder.id}>
-        {folder.name}
-      </option>
-    ));
-  };
-
-  handleFormSubmit = event => {
-    event.preventDefault(event);
+  handleFormSubmit = (e) => {
+    e.preventDefault(e);
+    if (this.validateName()) {
+      this.setState({
+        name: { touched: true },
+      });
+      return;
+    }
+    if (this.validateContent()) {
+      this.setState({
+        content: { touched: true },
+      });
+      return;
+    }
     const newNote = {
-      name: event.target.name.value,
-      content: event.target.content.value,
-      folderId: event.target.folders.value,
-      modified: new Date()
+      name: e.target.name.value,
+      content: e.target.content.value,
+      folderId: e.target.folders.value,
+      modified: new Date(),
     };
     console.log(newNote);
     this.addNewNote(newNote);
     this.props.history.push("/");
   };
 
-  updateNewNoteData = (name, value) => {
-    this.setState({
-      newNote: {
-        ...this.state.newNote,
-        [name]: {
-          touched: true,
-          value
-        }
-      }
-    });
-  };
+  //note updates
+  updateNoteName(name) {
+    this.setState({ name: { value: name, touched: true } });
+  }
 
+  updateNoteContent(content) {
+    this.setState({ content: { value: content, touched: true } });
+  }
+
+  updateNoteFolder(folderId) {
+    this.setState({ folderId: { value: folderId, touched: true } });
+  }
+  parseFolders = () => {
+    return this.context.folders.map((folder) => (
+      <option
+        key={folder.id}
+        name={folder.id}
+        value={folder.id}
+        onChange={(e) => this.updateNoteFolder}
+      >
+        {folder.name}
+      </option>
+    ));
+  };
+  //validations
   validateName = () => {
-    if (this.state.newNote.name.value.length === 0) {
+    if (!this.state.name.value) {
       return "Note title is required";
     }
   };
 
   validateContent = () => {
-    if (this.state.newNote.content.value.length === 0) {
+    if (!this.state.content.value) {
       return "Note description is required";
     }
   };
+
+  validateFolderName() {
+    if (!this.state.folderId.value.trim()) {
+      return "Please select an existing folder.";
+    }
+  }
 
   render() {
     return (
       <>
         <h2 className="addNote__header">Add a Note</h2>
-        <form
+        <AddNoteForm
           className="addNote__form"
-          onSubmit={e => this.handleFormSubmit(e)}
+          onSubmit={(e) => this.handleFormSubmit(e)}
         >
           <label htmlFor="name">
             Name:
-            {this.state.newNote.name.touched && <p>{this.validateName()}</p>}
+            {this.state.name.touched && <ValidationError message={this.validateName()}/>}
           </label>
           <input
             type="text"
@@ -102,17 +130,13 @@ export default class AddNote extends Component {
             id="name"
             aria-required="true"
             aria-label="Name"
-            placeholder="Name note"
-            onChange={event =>
-              this.updateNewNoteData(event.target.name, event.target.value)
-            }
+            placeholder="Note Name"
+            onChange={(e) => this.updateNoteName(e.target.value)}
           />
 
           <label htmlFor="content">
             Description:
-            {this.state.newNote.content.touched && (
-              <p>{this.validateContent()}</p>
-            )}
+            {this.state.content.touched && <ValidationError message={this.validateContent()}/>}
           </label>
           <input
             type="text"
@@ -121,12 +145,13 @@ export default class AddNote extends Component {
             aria-required="true"
             aria-label="Description"
             placeholder="Write note here."
-            onChange={event =>
-              this.updateNewNoteData(event.target.name, event.target.value)
-            }
+            onChange={(e) => this.updateNoteContent(e.target.value)}
           />
 
-          <label htmlFor="folders">Select a folder:</label>
+          <label htmlFor="folders">
+            Select a folder:
+           {this.state.folderId.touched && <ValidationError message={this.validateFolderName()} />}
+          </label>
           <select
             name="folders"
             id="folders"
@@ -139,7 +164,7 @@ export default class AddNote extends Component {
           <button className="submit__btn" type="submit">
             Add
           </button>
-        </form>
+        </AddNoteForm>
       </>
     );
   }

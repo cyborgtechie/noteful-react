@@ -9,7 +9,7 @@ class NotefulError extends Component {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(err) {
     return { hasError: true };
   }
   render() {

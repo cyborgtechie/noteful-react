@@ -27,12 +27,10 @@ class NotePageNav extends Component {
           type="button"
           role="link"
           className="NotePageNav__back-btn"
+          value={`${folder ? folder.name : "Go Back"} `}
           onClick={() => this.props.history.goBack()}
         >
-          Go Back{" "}
-          {folder && (
-            <h3 className="NotePageNav__folder-name">{folder.name}</h3>
-          )}
+          {"Go back"}
         </button>
       </div>
     );

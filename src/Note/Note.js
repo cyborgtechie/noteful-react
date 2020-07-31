@@ -12,26 +12,10 @@ class Note extends React.Component {
     e.preventDefault();
     const noteId = this.props.id;
 
-    fetch(`${config.API_Endpoint}notes/${noteId}`, {
-      method: "DELETE",
-      headers: {
-        "content-type": "application/json",
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const e = await res.json();
-          return await Promise.reject(e);
-        }
-        return res.json();
-      })
-      .then(() => {
-        console.log("note deleted");
-        this.context.deleteNote(noteId);
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
+    this.context.deleteNote(noteId);
+    if (this.props.onDeleteNote) {
+      this.props.onDeleteNote();
+    }
   };
 
   render() {
@@ -57,7 +41,6 @@ class Note extends React.Component {
 }
 
 Note.propTypes = {
-  onDeleteNote: PropTypes.func,
   id: PropTypes.string,
   name: PropTypes.string,
   modified: PropTypes.string,
